@@ -1,0 +1,6 @@
+@WonderlandBackend_HostAddress = http://localhost:5248
+
+GET {{WonderlandBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
