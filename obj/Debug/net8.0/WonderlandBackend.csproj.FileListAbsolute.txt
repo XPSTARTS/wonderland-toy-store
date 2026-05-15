@@ -139,3 +139,4 @@ C:\Users\hp\Desktop\WonderlandStore\backend\WonderlandBackend\WonderlandBackend\
 C:\Users\hp\Desktop\WonderlandStore\backend\WonderlandBackend\WonderlandBackend\obj\Debug\net8.0\WonderlandBackend.pdb
 C:\Users\hp\Desktop\WonderlandStore\backend\WonderlandBackend\WonderlandBackend\obj\Debug\net8.0\WonderlandBackend.genruntimeconfig.cache
 C:\Users\hp\Desktop\WonderlandStore\backend\WonderlandBackend\WonderlandBackend\obj\Debug\net8.0\ref\WonderlandBackend.dll
+C:\Users\hp\Desktop\WonderlandStore\backend\WonderlandBackend\WonderlandBackend\obj\Debug\net8.0\WonderlandBackend.sourcelink.json

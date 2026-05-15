@@ -1,0 +1,67 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Core
+appsettings.*.json
+Properties/launchSettings.json
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Visual Studio
+.vs/
+.vscode/
+*.sln
+*.sln.user
+
+# Rider / JetBrains
+.idea/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Others
+~$*
+*~
+*.binlog
+CodeCoverage/
+.DS_Store
+
+# Entity Framework Core Migrations (optional - uncomment if you want to commit migrations)
+# **/Migrations/
+
+# Logs & temporary files
+logs/
+*.log
