@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WonderlandBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63545b643349a09fad45e160b2bf735df32da735")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+544eeec901bffc568a37b4fda7dbffdfc6111afc")]
 [assembly: System.Reflection.AssemblyProductAttribute("WonderlandBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WonderlandBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
