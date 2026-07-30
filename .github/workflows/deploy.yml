@@ -23,16 +23,16 @@ jobs:
         run: ls -la
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore WonderlandBackend.sln
 
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build WonderlandBackend.sln --no-restore --configuration Release
 
       - name: Run Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test WonderlandBackend.sln --no-build --verbosity normal
 
       - name: Publish
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish WonderlandBackend.csproj -c Release -o ./publish
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
