@@ -19,24 +19,23 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: List files (Debug)
+        run: ls -la
+
       - name: Restore dependencies
         run: dotnet restore
-        working-directory: ./backend/WonderlandBackend
 
       - name: Build
         run: dotnet build --no-restore --configuration Release
-        working-directory: ./backend/WonderlandBackend
 
       - name: Run Tests
         run: dotnet test --no-build --verbosity normal
-        working-directory: ./backend/WonderlandBackend
 
       - name: Publish
         run: dotnet publish -c Release -o ./publish
-        working-directory: ./backend/WonderlandBackend
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: wonderland-api
-          path: ./backend/WonderlandBackend/publish
+          path: ./publish
