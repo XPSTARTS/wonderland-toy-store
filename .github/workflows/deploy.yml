@@ -1,38 +1,42 @@
-# .github/workflows/deploy.yml
-name: Deploy to Railway
+name: Build and Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
+        working-directory: ./backend/WonderlandBackend
 
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ./backend/WonderlandBackend
 
-      - name: Test
+      - name: Run Tests
         run: dotnet test --no-build --verbosity normal
+        working-directory: ./backend/WonderlandBackend
 
       - name: Publish
         run: dotnet publish -c Release -o ./publish
+        working-directory: ./backend/WonderlandBackend
 
-      - name: Deploy to Railway
-        uses: railway/action@v1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          project: ${{ secrets.RAILWAY_PROJECT_ID }}
+          name: wonderland-api
+          path: ./backend/WonderlandBackend/publish
