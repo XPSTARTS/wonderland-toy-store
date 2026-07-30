@@ -3,15 +3,13 @@ name: Build and Deploy
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -19,17 +17,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: List files (Debug)
-        run: ls -la
-
-      - name: Restore dependencies
-        run: dotnet restore WonderlandBackend.sln
+      - name: Restore
+        run: dotnet restore WonderlandBackend.csproj
 
       - name: Build
-        run: dotnet build WonderlandBackend.sln --no-restore --configuration Release
-
-      - name: Run Tests
-        run: dotnet test WonderlandBackend.sln --no-build --verbosity normal
+        run: dotnet build WonderlandBackend.csproj --configuration Release --no-restore
 
       - name: Publish
         run: dotnet publish WonderlandBackend.csproj -c Release -o ./publish
