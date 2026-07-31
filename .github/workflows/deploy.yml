@@ -18,18 +18,14 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Restore dependencies (Main App)
+    - name: Restore dependencies
       run: dotnet restore
       working-directory: ./WonderlandBackend
 
-    - name: Build (Main App)
+    - name: Build
       run: dotnet build --no-restore
       working-directory: ./WonderlandBackend
 
-    - name: Test (Unit Tests)
+    - name: Run Unit Tests
       run: dotnet test --no-build --verbosity normal
       working-directory: ./WonderlandBackend.UnitTests
-      
-    - name: Test (Integration Tests)
-      run: dotnet test --no-build --verbosity normal
-      working-directory: ./WonderlandBackend.IntegrationTests

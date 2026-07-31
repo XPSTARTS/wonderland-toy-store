@@ -117,4 +117,63 @@ public class CartServiceTests
         result.Items.Should().BeEmpty();
         result.TotalItems.Should().Be(0);
     }
+
+    [Fact]
+    public async Task AddToCart_ExceedsStock_ThrowsException()
+    {
+        // Arrange
+        var context = CreateDbContext();
+        context.Products.Add(new Product
+        {
+            Id = 1,
+            Name = "Limited Product",
+            Price = 10m,
+            StockQuantity = 2 // Only 2 available
+        });
+        await context.SaveChangesAsync();
+
+        var mockProductService = new Mock<ProductService>(
+            context,
+            Mock.Of<IRedisCacheService>(),
+            Mock.Of<ILogger<ProductService>>()
+        );
+
+        var service = new CartService(context, mockProductService.Object);
+
+        // Try to add 5 items (more than stock)
+        var addDto = new AddToCartDto { ProductId = 1, Quantity = 5 };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<Exception>(() => service.AddToCart(100, addDto));
+    }
+
+    [Fact]
+    public async Task ClearCart_RemovesAllItems()
+    {
+        // Arrange
+        var context = CreateDbContext();
+        context.Products.Add(new Product { Id = 1, Name = "Test Product", Price = 10m, StockQuantity = 100 });
+
+        var cart = new Cart { UserId = 100, CreatedAt = DateTime.UtcNow };
+        context.Carts.Add(cart);
+        context.CartItems.Add(new CartItem { CartId = cart.Id, ProductId = 1, Quantity = 3 });
+        context.CartItems.Add(new CartItem { CartId = cart.Id, ProductId = 1, Quantity = 2 });
+        await context.SaveChangesAsync();
+
+        var mockProductService = new Mock<ProductService>(
+            context,
+            Mock.Of<IRedisCacheService>(),
+            Mock.Of<ILogger<ProductService>>()
+        );
+
+        var service = new CartService(context, mockProductService.Object);
+
+        // Act
+        var result = await service.ClearCart(100);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Items.Should().BeEmpty();
+        result.TotalItems.Should().Be(0);
+    }
 }
