@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using WonderlandBackend.Data;
 using WonderlandBackend.DTOs;
 using WonderlandBackend.Models;
@@ -13,6 +14,8 @@ namespace WonderlandBackend.Services
         private readonly IEmailService _emailService;
         private readonly ILogger<OrderService> _logger;
 
+        // ✅ ADD THIS INTERFACE TO YOUR CONSTRUCTOR
+        private readonly IDbContextTransaction? _transaction;
         public OrderService(
             ApplicationDbContext context,
             CartService cartService,
@@ -29,7 +32,12 @@ namespace WonderlandBackend.Services
 
         public async Task<OrderDto?> CreateOrder(int userId, CreateOrderDto orderDto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            // ✅ START TRANSACTION SAFELY
+            IDbContextTransaction? transaction = null;
+            if (_context.Database.IsRelational())
+            {
+                transaction = await _context.Database.BeginTransactionAsync();
+            }
 
             try
             {
@@ -92,11 +100,14 @@ namespace WonderlandBackend.Services
                 await _context.SaveChangesAsync();
                 await _cartService.ClearCart(userId);
 
-                await transaction.CommitAsync();
+                // ✅ COMMIT SAFELY
+                if (transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
 
                 _logger.LogInformation($"✅ Order {order.Id} completed successfully");
 
-                // ✅ Send ONLY admin notification (no customer email)
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
@@ -129,7 +140,12 @@ namespace WonderlandBackend.Services
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                // ✅ ROLLBACK SAFELY
+                if (transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
+
                 _logger.LogError(ex, $"❌ Order creation failed for user {userId}");
                 throw;
             }
