@@ -49,9 +49,9 @@ public class AuthServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Email.Should().Be("newuser@example.com");
-        result.FullName.Should().Be("Test User");
-        result.Role.Should().Be("Customer");
+        result?.Email.Should().Be("newuser@example.com");
+        result?.FullName.Should().Be("Test User");
+        result?.Role.Should().Be("Customer");
 
         // Verify Cart was automatically created
         var cart = await context.Carts.FirstOrDefaultAsync(c => c.UserId == result.Id);
