@@ -228,10 +228,10 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        // ✅ ADD THIS LINE RIGHT HERE (Before CORS or Auth)
         app.UseRouting();
 
         app.UseCors("AllowAll");
+
         app.UseIpRateLimiting();
 
         app.UseMiddleware<SecurityHeadersMiddleware>();
@@ -253,4 +253,5 @@ public class Startup
             endpoints.MapControllers();
         });
     }
+
 }
