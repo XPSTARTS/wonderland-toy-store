@@ -228,6 +228,9 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        // ✅ ADD THIS LINE RIGHT HERE (Before CORS or Auth)
+        app.UseRouting();
+
         app.UseCors("AllowAll");
         app.UseIpRateLimiting();
 
@@ -245,7 +248,6 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // 🚨 CRITICAL FIX: MapControllers must be called on app.UseEndpoints() for older startup patterns
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
