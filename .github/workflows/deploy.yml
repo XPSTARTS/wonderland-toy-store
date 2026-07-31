@@ -2,32 +2,34 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+    - name: Restore dependencies (Main App)
+      run: dotnet restore
+      working-directory: ./WonderlandBackend
 
-      - name: Restore
-        run: dotnet restore WonderlandBackend.csproj
+    - name: Build (Main App)
+      run: dotnet build --no-restore
+      working-directory: ./WonderlandBackend
 
-      - name: Build
-        run: dotnet build WonderlandBackend.csproj --configuration Release --no-restore
-
-      - name: Publish
-        run: dotnet publish WonderlandBackend.csproj -c Release -o ./publish
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wonderland-api
-          path: ./publish
+    - name: Test (Unit Tests)
+      run: dotnet test --no-build --verbosity normal
+      working-directory: ./WonderlandBackend.UnitTests
+      
+    - name: Test (Integration Tests)
+      run: dotnet test --no-build --verbosity normal
+      working-directory: ./WonderlandBackend.IntegrationTests
