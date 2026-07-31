@@ -1,0 +1,33 @@
+# .NET build output
+bin/
+obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.sln.docstates
+
+# Git files
+.git/
+.gitignore
+README.md
+
+# Environment files
+.env
+.env.*
+appsettings.Development.json
+appsettings.Production.json
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

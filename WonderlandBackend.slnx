@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="WonderlandBackend.IntegrationTests/WonderlandBackend.IntegrationTests.csproj" />
+  <Project Path="WonderlandBackend.UnitTests/WonderlandBackend.UnitTests.csproj" />
+  <Project Path="WonderlandBackend/WonderlandBackend.csproj" />
+</Solution>

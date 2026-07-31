@@ -1,0 +1,93 @@
+﻿# .NET build output
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+
+# Build results
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.nuspec
+*.cache
+*.csproj.user
+*.dbmdl
+*.dbproj.schemaview
+
+# Visual Studio files
+.vs/
+.vscode/
+*.swp
+*.swo
+
+# Rider
+.idea/
+*.sln.iml
+
+# Entity Framework Migrations (keep only the folder structure)
+**/Migrations/*.Designer.cs
+**/Migrations/*.cs
+!**/Migrations/ApplicationDbContextModelSnapshot.cs
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
+env
+
+# Logs
+logs/
+*.log
+serilog*.txt
+
+# Already have bin/ but add:
+**/obj/
+.vs/
+*.user
+*.tmp
+*.bak
+*.http
+bfg.jar
+
+
+# Coverage
+**/coverage/
+**/TestResults/
+
+# Azure Functions
+local.settings.json
+
+# Docker
+**/Dockerfile
+**/docker-compose.yml
+
+# npm/node (if you have any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# System files
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
