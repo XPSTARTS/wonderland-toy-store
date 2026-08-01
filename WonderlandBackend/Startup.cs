@@ -80,15 +80,27 @@ public class Startup
             });
         });
 
-        // === Database Context (WITH POOLING DISABLED FOR SUPABASE) ===
+        // === Database Context (PRODUCTION SAFE PARSING) ===
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
         if (!string.IsNullOrEmpty(databaseUrl))
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                var dataSourceBuilder = new NpgsqlDataSourceBuilder(databaseUrl);
-                dataSourceBuilder.ConnectionStringBuilder.Pooling = false;
-                options.UseNpgsql(dataSourceBuilder.Build());
+                var builder = new Npgsql.NpgsqlConnectionStringBuilder();
+
+                // This prevents the "KeyNotFoundException" parsing bug.
+                builder.Host = "aws-0-ap-northeast-1.pooler.supabase.com";
+                builder.Port = 6543;
+                builder.Database = "postgres";
+                builder.Username = "postgres.ocbpfqldiugcmfaehqlq";
+                builder.Password = "4f6uTMojYAACOlnl"; // Use the exact case you saved
+                builder.Pooling = false; // Supabase pooler handles pooling
+                builder.SslMode = Npgsql.SslMode.Require;
+
+                // ✅ Build the safe connection string
+                var safeConnectionString = builder.ConnectionString;
+
+                options.UseNpgsql(safeConnectionString);
             });
         }
         else
