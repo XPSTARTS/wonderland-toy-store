@@ -81,33 +81,16 @@ public class Startup
         });
 
         // === Database Context (PRODUCTION SAFE PARSING) ===
-        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-        if (!string.IsNullOrEmpty(databaseUrl))
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                var builder = new Npgsql.NpgsqlConnectionStringBuilder();
+        var host = "aws-0-ap-northeast-1.pooler.supabase.com";
+        var port = 6543;
+        var database = "postgres";
+        var username = "postgres.ocbpfqldiugcmfaehqlq";
+        var password = "4f6uTMojYAACOlnd"; 
 
-                // This prevents the "KeyNotFoundException" parsing bug.
-                builder.Host = "aws-0-ap-northeast-1.pooler.supabase.com";
-                builder.Port = 6543;
-                builder.Database = "postgres";
-                builder.Username = "postgres.ocbpfqldiugcmfaehqlq";
-                builder.Password = "4f6uTMojYAACOlnl"; // Use the exact case you saved
-                builder.Pooling = false; // Supabase pooler handles pooling
-                builder.SslMode = Npgsql.SslMode.Require;
+        var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};Pooling=false;SSL Mode=Require;Trust Server Certificate=true";
 
-                // ✅ Build the safe connection string
-                var safeConnectionString = builder.ConnectionString;
-
-                options.UseNpgsql(safeConnectionString);
-            });
-        }
-        else
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-        }
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(connectionString));
 
         // === JWT Authentication (PRODUCTION SAFE) ===
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? Configuration.GetValue<string>("Jwt:Key");

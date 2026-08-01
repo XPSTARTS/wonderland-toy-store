@@ -16,11 +16,31 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        dbContext.Database.EnsureCreated();
+
+        try
+        {
+            dbContext.Database.EnsureCreated();
+            Console.WriteLine("✅ Database check passed (EnsureCreated).");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ Database check failed (EnsureCreated), skipping: {ex.Message}");
+            Console.WriteLine("⚠️ Your database might already exist, or you need to run migrations manually.");
+        }
+
         var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@wonderland.com";
         var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "Admin123!";
         var adminName = Environment.GetEnvironmentVariable("ADMIN_NAME") ?? "Store Admin";
-        DbSeeder.SeedAdmin(dbContext, adminEmail, adminPassword, adminName);
+
+        try
+        {
+            DbSeeder.SeedAdmin(dbContext, adminEmail, adminPassword, adminName);
+            Console.WriteLine("✅ Admin seeded successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️ Admin seeding failed (might already exist): {ex.Message}");
+        }
     }
 
     Console.WriteLine("✅ Backend started successfully!");
@@ -30,5 +50,5 @@ catch (Exception ex)
 {
     Console.WriteLine("❌ CRITICAL STARTUP ERROR:");
     Console.WriteLine(ex.ToString());
-    throw; // Re-throw so Railway catches the failure
+    throw;
 }
