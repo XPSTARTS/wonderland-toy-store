@@ -7,7 +7,7 @@ using WonderlandBackend.Data;
 using WonderlandBackend.Middleware;
 using WonderlandBackend.Services;
 using AspNetCoreRateLimit;
-using Npgsql; // ✅ ADD THIS
+using Npgsql;
 
 namespace WonderlandBackend;
 
@@ -33,74 +33,18 @@ public class Startup
         {
             options.GeneralRules = new List<RateLimitRule>
             {
-                // Auth endpoints - Strict limits
-                new RateLimitRule
-                {
-                    Endpoint = "POST:/api/auth/login",
-                    Limit = 5,
-                    Period = "5m",
-                    QuotaExceededResponse = new QuotaExceededResponse
-                    {
-                        Content = "{\"message\":\"Too many login attempts. Please try again in 5 minutes.\"}",
-                        ContentType = "application/json"
-                    }
-                },
-                new RateLimitRule
-                {
-                    Endpoint = "POST:/api/auth/2fa/verify",
-                    Limit = 5,
-                    Period = "5m",
-                    QuotaExceededResponse = new QuotaExceededResponse
-                    {
-                        Content = "{\"message\":\"Too many 2FA verification attempts. Please try again in 5 minutes.\"}",
-                        ContentType = "application/json"
-                    }
-                },
-                new RateLimitRule
-                {
-                    Endpoint = "POST:/api/auth/2fa/send",
-                    Limit = 3,
-                    Period = "10m",
-                    QuotaExceededResponse = new QuotaExceededResponse
-                    {
-                        Content = "{\"message\":\"Too many 2FA code requests. Please try again in 10 minutes.\"}",
-                        ContentType = "application/json"
-                    }
-                },
-                new RateLimitRule
-                {
-                    Endpoint = "POST:/api/auth/register",
-                    Limit = 3,
-                    Period = "1h",
-                    QuotaExceededResponse = new QuotaExceededResponse
-                    {
-                        Content = "{\"message\":\"Too many registration attempts. Please try again in 1 hour.\"}",
-                        ContentType = "application/json"
-                    }
-                },
-                new RateLimitRule
-                {
-                    Endpoint = "GET:/api/products",
-                    Limit = 100,
-                    Period = "1m",
-                    QuotaExceededResponse = new QuotaExceededResponse
-                    {
-                        Content = "{\"message\":\"Too many product requests. Please slow down.\"}",
-                        ContentType = "application/json"
-                    }
-                },
-                // General rules - Standard limits
-                new RateLimitRule
-                {
-                    Endpoint = "*",
-                    Limit = 60,
-                    Period = "1m",
-                    QuotaExceededResponse = new QuotaExceededResponse
-                    {
-                        Content = "{\"message\":\"Too many requests. Please try again later.\"}",
-                        ContentType = "application/json"
-                    }
-                }
+                new RateLimitRule { Endpoint = "POST:/api/auth/login", Limit = 5, Period = "5m",
+                    QuotaExceededResponse = new QuotaExceededResponse { Content = "{\"message\":\"Too many login attempts. Please try again in 5 minutes.\"}", ContentType = "application/json" } },
+                new RateLimitRule { Endpoint = "POST:/api/auth/2fa/verify", Limit = 5, Period = "5m",
+                    QuotaExceededResponse = new QuotaExceededResponse { Content = "{\"message\":\"Too many 2FA verification attempts. Please try again in 5 minutes.\"}", ContentType = "application/json" } },
+                new RateLimitRule { Endpoint = "POST:/api/auth/2fa/send", Limit = 3, Period = "10m",
+                    QuotaExceededResponse = new QuotaExceededResponse { Content = "{\"message\":\"Too many 2FA code requests. Please try again in 10 minutes.\"}", ContentType = "application/json" } },
+                new RateLimitRule { Endpoint = "POST:/api/auth/register", Limit = 3, Period = "1h",
+                    QuotaExceededResponse = new QuotaExceededResponse { Content = "{\"message\":\"Too many registration attempts. Please try again in 1 hour.\"}", ContentType = "application/json" } },
+                new RateLimitRule { Endpoint = "GET:/api/products", Limit = 100, Period = "1m",
+                    QuotaExceededResponse = new QuotaExceededResponse { Content = "{\"message\":\"Too many product requests. Please slow down.\"}", ContentType = "application/json" } },
+                new RateLimitRule { Endpoint = "*", Limit = 60, Period = "1m",
+                    QuotaExceededResponse = new QuotaExceededResponse { Content = "{\"message\":\"Too many requests. Please try again later.\"}", ContentType = "application/json" } }
             };
             options.EnableEndpointRateLimiting = true;
             options.StackBlockedRequests = false;
@@ -121,12 +65,7 @@ public class Startup
         // === Swagger
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Wonderland Toy Store API",
-                Version = "v1",
-                Description = "E-commerce API for Wonderland Toy Store"
-            });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Wonderland Toy Store API", Version = "v1", Description = "E-commerce API for Wonderland Toy Store" });
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = "Enter 'Bearer' [space] and then your token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -163,7 +102,6 @@ public class Startup
         var jwtIssuer = "wonderland-backend";
         var jwtAudience = "wonderland-frontend";
 
-        // ✅ CRITICAL FIX: No hardcoded fallback. If the key is missing or too short, throw!
         if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
         {
             throw new Exception("JWT_KEY must be at least 32 characters long and properly configured in Environment Variables.");
@@ -221,11 +159,20 @@ public class Startup
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRedisCacheService, RedisCacheService>();
 
+        // ============================================================
+        // ✅ FIXED CORS FOR PRODUCTION (Reading from Environment Variable)
+        // ============================================================
+        var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            ?? new[] { "https://wonderland-toys.vercel.app", "http://localhost:5173" };
+
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", policy =>
+            options.AddPolicy("ProductionPolicy", policy =>
             {
-                policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials(); 
             });
         });
     }
@@ -234,7 +181,7 @@ public class Startup
     {
         app.UseRouting();
 
-        app.UseCors("AllowAll");
+        app.UseCors("ProductionPolicy");
 
         app.UseIpRateLimiting();
 

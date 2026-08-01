@@ -1,0 +1,13 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd backend/WonderlandBackend && dotnet publish -c Release -o out",
+    "watchPatterns": [
+      "backend/WonderlandBackend/**"
+    ]
+  },
+  "deploy": {
+    "startCommand": "cd backend/WonderlandBackend && dotnet out/WonderlandBackend.dll",
+    "healthcheckPath": "/swagger/index.html"
+  }
+}
