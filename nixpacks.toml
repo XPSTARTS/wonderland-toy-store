@@ -3,13 +3,13 @@ nixPkgs = ["dotnet-sdk_8"]
 
 [phases.install]
 cmds = [
-  "cd backend/WonderlandBackend && dotnet restore"
+  "dotnet restore"
 ]
 
 [phases.build]
 cmds = [
-  "cd backend/WonderlandBackend && dotnet publish -c Release -o out"
+  "dotnet publish -c Release -o out"
 ]
 
 [start]
-cmd = "cd backend/WonderlandBackend && dotnet out/WonderlandBackend.dll"
+cmd = "dotnet out/WonderlandBackend.dll"
