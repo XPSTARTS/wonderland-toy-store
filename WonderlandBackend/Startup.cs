@@ -80,7 +80,7 @@ public class Startup
             });
         });
 
-        // === Database Context (RAILWAY ENVIRONMENT VARIABLES) ===
+        // === Database Context (WITH TIMEOUT FIX) ===
         var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
 
         if (string.IsNullOrEmpty(connectionString))
@@ -89,7 +89,12 @@ public class Startup
         }
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+        {
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.ConnectionStringBuilder.Timeout = 60; // ⏱️ 60 second timeout for cross-region lag
+            dataSourceBuilder.ConnectionStringBuilder.CommandTimeout = 60;
+            options.UseNpgsql(dataSourceBuilder.Build());
+        });
 
         // === JWT Authentication (PRODUCTION SAFE) ===
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? Configuration.GetValue<string>("Jwt:Key");
