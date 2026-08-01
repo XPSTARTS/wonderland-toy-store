@@ -80,8 +80,14 @@ public class Startup
             });
         });
 
-        // === Database Context (SECURE: READ FROM APPSETTINGS) ===
-        var connectionString = Configuration.GetConnectionString("SupabaseConnection");
+        // === Database Context (RAILWAY ENVIRONMENT VARIABLES) ===
+        var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
+
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new Exception("SUPABASE_CONNECTION_STRING environment variable is not set.");
+        }
+
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
 
