@@ -2,14 +2,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# ✅ COPY ALL FILES FROM THE CURRENT FOLDER (NO GUESSING)
+# Copy everything from the current context into /app
 COPY . .
 
-# Restore dependencies
+# ✅ CRITICAL FIX: Move into the correct subfolder before running dotnet
+WORKDIR /app/WonderlandBackend
 RUN dotnet restore
 
-# Publish the application
-RUN dotnet publish -c Release -o out
+# Build and publish
+RUN dotnet publish -c Release -o /app/out
 
 # Runtime Stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
