@@ -77,10 +77,6 @@ bfg.jar
 # Azure Functions
 local.settings.json
 
-# Docker
-**/Dockerfile
-**/docker-compose.yml
-
 # npm/node (if you have any)
 node_modules/
 npm-debug.log
