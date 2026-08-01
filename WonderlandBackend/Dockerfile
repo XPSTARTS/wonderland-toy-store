@@ -1,27 +1,23 @@
-# Build Stage
+﻿# Build Stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copy csproj and restore dependencies
-COPY WonderlandBackend.csproj .
+# ✅ COPY ALL FILES FROM THE CURRENT FOLDER (NO GUESSING)
+COPY . .
+
+# Restore dependencies
 RUN dotnet restore
 
-# Copy everything else and build
-COPY . .
-RUN dotnet publish -c Release -o /app/publish
+# Publish the application
+RUN dotnet publish -c Release -o out
 
 # Runtime Stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Copy published files from build stage
-COPY --from=build /app/publish .
+# Copy published files
+COPY --from=build /app/out .
 
-# Expose port
 EXPOSE 8080
-
-# Set environment variable
 ENV ASPNETCORE_ENVIRONMENT=Production
-
-# Run the application
 ENTRYPOINT ["dotnet", "WonderlandBackend.dll"]
