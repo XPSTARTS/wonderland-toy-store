@@ -80,15 +80,8 @@ public class Startup
             });
         });
 
-        // === Database Context (PRODUCTION SAFE PARSING) ===
-        var host = "aws-0-ap-northeast-1.pooler.supabase.com";
-        var port = 6543;
-        var database = "postgres";
-        var username = "postgres.ocbpfqldiugcmfaehqlq";
-        var password = "4f6uTMojYAACOlnd"; 
-
-        var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};Pooling=false;SSL Mode=Require;Trust Server Certificate=true";
-
+        // === Database Context (SECURE: READ FROM APPSETTINGS) ===
+        var connectionString = Configuration.GetConnectionString("SupabaseConnection");
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
 
