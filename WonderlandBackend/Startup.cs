@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using System.Text;
 using WonderlandBackend.Data;
 using WonderlandBackend.Middleware;
 using WonderlandBackend.Services;
-using AspNetCoreRateLimit;
-using Npgsql;
 
 namespace WonderlandBackend;
 
@@ -80,7 +81,7 @@ public class Startup
             });
         });
 
-        // === Database Context (WITH TIMEOUT FIX) ===
+        // === Database Context ===
         var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
 
         if (string.IsNullOrEmpty(connectionString))
@@ -91,9 +92,11 @@ public class Startup
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-            dataSourceBuilder.ConnectionStringBuilder.Timeout = 60; // ⏱️ 60 second timeout for cross-region lag
-            dataSourceBuilder.ConnectionStringBuilder.CommandTimeout = 60;
+            dataSourceBuilder.ConnectionStringBuilder.Timeout = 30;
+            dataSourceBuilder.ConnectionStringBuilder.CommandTimeout = 30;
             options.UseNpgsql(dataSourceBuilder.Build());
+
+            options.ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
         });
 
         // === JWT Authentication (PRODUCTION SAFE) ===
@@ -159,10 +162,14 @@ public class Startup
         services.AddScoped<IRedisCacheService, RedisCacheService>();
 
         // ============================================================
-        // ✅ FIXED CORS FOR PRODUCTION (Reading from Environment Variable)
+        // ✅ FIXED CORS FOR PRODUCTION (Include Railway URL)
         // ============================================================
         var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-            ?? new[] { "https://wonderland-toys.vercel.app", "http://localhost:5173" };
+            ?? new[] {
+                "https://wonderland-toys.vercel.app",
+                "http://localhost:5173",
+                "https://wonderland-toy-store-production.up.railway.app" // ✅ Added for self-script execution
+            };
 
         services.AddCors(options =>
         {
@@ -171,7 +178,7 @@ public class Startup
                 policy.WithOrigins(allowedOrigins)
                       .AllowAnyMethod()
                       .AllowAnyHeader()
-                      .AllowCredentials(); 
+                      .AllowCredentials();
             });
         });
     }
