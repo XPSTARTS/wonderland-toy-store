@@ -7,6 +7,7 @@ using WonderlandBackend.Data;
 using WonderlandBackend.Middleware;
 using WonderlandBackend.Services;
 using AspNetCoreRateLimit;
+using Npgsql; // ✅ ADD THIS
 
 namespace WonderlandBackend;
 
@@ -140,12 +141,16 @@ public class Startup
             });
         });
 
-        // Database Context
+        // === Database Context (WITH POOLING DISABLED FOR SUPABASE) ===
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
         if (!string.IsNullOrEmpty(databaseUrl))
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(databaseUrl));
+            {
+                var dataSourceBuilder = new NpgsqlDataSourceBuilder(databaseUrl);
+                dataSourceBuilder.ConnectionStringBuilder.Pooling = false;
+                options.UseNpgsql(dataSourceBuilder.Build());
+            });
         }
         else
         {
@@ -153,17 +158,16 @@ public class Startup
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
 
-        // JWT Authentication
+        // === JWT Authentication (PRODUCTION SAFE) ===
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? Configuration.GetValue<string>("Jwt:Key");
         var jwtIssuer = "wonderland-backend";
         var jwtAudience = "wonderland-frontend";
 
-        if (!string.IsNullOrEmpty(jwtKey))
+        // ✅ CRITICAL FIX: No hardcoded fallback. If the key is missing or too short, throw!
+        if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
         {
-            jwtKey = jwtKey.Trim();
-            if (jwtKey.Length < 32) jwtKey = "EreWGJiE4xmiyMaAiQjxYFMdDr6FrJWX";
+            throw new Exception("JWT_KEY must be at least 32 characters long and properly configured in Environment Variables.");
         }
-        if (string.IsNullOrEmpty(jwtKey)) throw new Exception("JWT_KEY environment variable not configured");
 
         var key = Encoding.ASCII.GetBytes(jwtKey);
 
@@ -253,5 +257,4 @@ public class Startup
             endpoints.MapControllers();
         });
     }
-
 }
