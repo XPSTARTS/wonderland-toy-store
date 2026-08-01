@@ -1,6 +1,7 @@
 {
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "WonderlandBackend/Dockerfile"
+    "dockerfilePath": "WonderlandBackend/Dockerfile",
+    "buildContext": "WonderlandBackend"
   }
 }
